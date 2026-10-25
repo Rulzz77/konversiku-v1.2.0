@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10131f"><title>Masuk — KonversiKu</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at 15% -10%,rgba(121,102,255,.24),transparent 38%),#0b0e16;color:#f3f5ff;font:15px Inter,system-ui,sans-serif;padding:20px}
+    .card{width:min(420px,100%);padding:28px;border:1px solid rgba(255,255,255,.1);border-radius:22px;background:#171c2b;box-shadow:0 24px 80px rgba(0,0,0,.28)}
+    .mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(140deg,#a99dff,#6558e9);font-size:22px;margin-bottom:18px}
+    h1{font-size:24px;margin:0 0 8px;letter-spacing:-.04em}p{color:#9aa3bc;line-height:1.7;font-size:13px;margin:0 0 20px}
+    label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:750;color:#bbc2d7;display:block;margin-bottom:8px}
+    input{width:100%;height:48px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#0b0e16;color:#f3f5ff;padding:0 13px;font:inherit;outline:none}
+    input:focus{border-color:#9b8cff;box-shadow:0 0 0 3px rgba(155,140,255,.12)}button{width:100%;height:48px;margin-top:15px;border:0;border-radius:10px;background:linear-gradient(100deg,#b7adff,#8b7cff 55%,#7ee9ce);color:#101322;font-weight:800;cursor:pointer}
+    .error{margin:0 0 14px;padding:11px;border-radius:9px;background:rgba(255,97,126,.09);border:1px solid rgba(255,97,126,.2);color:#ffb7c2;font-size:12px}
+  </style>
+</head><body><main class="card"><div class="mark">♫</div><h1>Masuk ke KonversiKu</h1><p>Masukkan kode akses yang kamu atur saat menyiapkan hosting. Kode ini menjaga agar orang lain tidak memakai layanan converter kamu.</p>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="{{ url_for('login', next=request.args.get('next','/')) }}"><label for="access_code">Kode akses</label><input id="access_code" name="access_code" type="password" required autocomplete="current-password" autofocus><button type="submit">Masuk</button></form></main></body></html>

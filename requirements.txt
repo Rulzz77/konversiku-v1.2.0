@@ -1,0 +1,5 @@
+Flask>=3.0,<4.0
+yt-dlp[default]>=2026.10.21
+imageio-ffmpeg>=0.5.1
+gunicorn>=22.0,<24.0
+requests>=2.31,<3.0

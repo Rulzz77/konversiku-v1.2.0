@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131f">
+  <meta name="description" content="Konversi media dari tautan publik atau file lokal ke MP4, MP3, WAV, M4A, dan WEBM.">
+  <title>{{ app_name }} — Converter media</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0e16;
+      --panel: rgba(22, 27, 42, .82);
+      --panel-strong: #171c2b;
+      --line: rgba(255,255,255,.09);
+      --text: #f3f5ff;
+      --muted: #9aa3bc;
+      --accent: #9b8cff;
+      --accent-2: #60e2c2;
+      --danger: #ff8a9d;
+      --shadow: 0 24px 80px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 15% -10%, rgba(121,102,255,.24), transparent 38%),
+        radial-gradient(ellipse at 95% 10%, rgba(50,214,185,.12), transparent 31%),
+        var(--bg);
+    }
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(1060px, calc(100% - 36px)); margin: 0 auto; }
+    header { height: 82px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.055); }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; font-weight: 760; letter-spacing: -.04em; font-size: 19px; }
+    .brand-mark { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(140deg, #a99dff, #6558e9); box-shadow: 0 7px 25px rgba(125,107,255,.28); }
+    .brand-mark svg { width: 22px; height: 22px; }
+    .beta { padding: 5px 9px; border: 1px solid rgba(155,140,255,.28); color: #bdb4ff; border-radius: 7px; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; font-weight: 750; }
+    .header-note { color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; }
+    .status-dot { width: 7px; height: 7px; background: var(--accent-2); border-radius: 50%; box-shadow: 0 0 13px rgba(96,226,194,.6); }
+    .hero { padding: 60px 0 34px; text-align: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid rgba(255,255,255,.1); border-radius: 99px; color: #c9c4ff; font-size: 12px; background: rgba(255,255,255,.035); }
+    .eyebrow svg { color: var(--accent-2); }
+    h1 { margin: 19px 0 14px; font-size: clamp(36px, 6vw, 60px); line-height: 1.04; letter-spacing: -.065em; font-weight: 790; }
+    h1 span { background: linear-gradient(100deg, #d1cbff 5%, #9b8cff 42%, #60e2c2 92%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { max-width: 590px; margin: 0 auto; font-size: 15px; line-height: 1.8; color: var(--muted); }
+    .platform-row { margin-top: 23px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .platform-pill { border: 1px solid var(--line); background: rgba(255,255,255,.025); padding: 7px 11px; display: flex; align-items: center; gap: 7px; border-radius: 9px; font-size: 11px; font-weight: 650; color: #c8cde0; }
+    .platform-icon { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    .platform-pill:nth-child(2) .platform-icon { background: #ff6d98; }
+    .platform-pill:nth-child(3) .platform-icon { background: #73a7ff; }
+    .platform-pill:nth-child(4) .platform-icon { background: #ff6666; }
+    .platform-pill:nth-child(5) .platform-icon { background: #60e2c2; }
+    .workspace { max-width: 760px; margin: 0 auto; }
+    .main-card { border: 1px solid rgba(255,255,255,.1); border-radius: 22px; background: linear-gradient(145deg, rgba(27,32,49,.96), rgba(17,21,33,.95)); box-shadow: var(--shadow); overflow: hidden; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 7px; gap: 7px; background: rgba(0,0,0,.13); border-bottom: 1px solid var(--line); }
+    .tab { min-height: 45px; display: flex; gap: 9px; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 12px; background: transparent; color: #9ea7bf; font-size: 13px; font-weight: 730; transition: .18s ease; }
+    .tab svg { width: 17px; height: 17px; }
+    .tab.active { color: #fff; background: linear-gradient(120deg, rgba(155,140,255,.2), rgba(96,226,194,.06)); border-color: rgba(155,140,255,.22); box-shadow: inset 0 1px rgba(255,255,255,.05); }
+    .tab-pane { padding: 26px; }
+    .pane-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 6px; font-size: 17px; letter-spacing: -.025em; }
+    .section-subtitle { color: var(--muted); font-size: 12px; line-height: 1.65; margin: 0; }
+    .label { font-size: 11px; font-weight: 760; text-transform: uppercase; letter-spacing: .09em; color: #bbc2d7; display: block; margin: 0 0 9px; }
+    .input-wrap { position: relative; }
+    .url-input { display: block; width: 100%; min-height: 54px; padding: 0 118px 0 16px; color: var(--text); background: rgba(3,6,13,.35); border: 1px solid rgba(255,255,255,.12); border-radius: 13px; outline: none; transition: .18s; }
+    .url-input:focus, .select:focus { border-color: rgba(155,140,255,.78); box-shadow: 0 0 0 3px rgba(155,140,255,.11); }
+    .url-input::placeholder { color: #68728a; }
+    .paste-btn { position: absolute; right: 7px; top: 7px; bottom: 7px; padding: 0 12px; background: rgba(255,255,255,.07); color: #cdd2e3; border: 1px solid rgba(255,255,255,.09); border-radius: 9px; font-size: 11px; font-weight: 700; }
+    .paste-btn:hover { background: rgba(255,255,255,.12); }
+    .hint { margin: 10px 0 0; display: flex; gap: 7px; align-items: flex-start; color: #818ba4; font-size: 11px; line-height: 1.55; }
+    .hint svg { flex: 0 0 auto; margin-top: 1px; }
+    .primary-btn { width: 100%; min-height: 49px; border: 0; border-radius: 12px; color: #101322; background: linear-gradient(100deg, #b7adff, #8b7cff 55%, #7ee9ce); font-size: 13px; font-weight: 820; box-shadow: 0 7px 25px rgba(132,113,255,.16); transition: transform .15s, filter .15s; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 9px; }
+    .primary-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+    .primary-btn:disabled { opacity: .6; cursor: wait; transform: none; }
+    .primary-btn svg { width: 17px; height: 17px; }
+    .result-card { display: none; margin-top: 22px; border: 1px solid rgba(255,255,255,.1); background: rgba(7,10,17,.35); border-radius: 15px; padding: 13px; }
+    .result-top { display: flex; gap: 13px; align-items: center; }
+    .thumb { width: 112px; height: 76px; flex: 0 0 auto; border-radius: 10px; background: #252a3a; object-fit: cover; }
+    .result-details { min-width: 0; flex: 1; }
+    .source-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 7px; background: rgba(155,140,255,.11); color: #c6beff; border-radius: 5px; text-transform: uppercase; letter-spacing: .06em; font-size: 9px; font-weight: 800; }
+    .result-title { font-size: 13px; font-weight: 740; line-height: 1.45; margin: 8px 0 5px; overflow-wrap: anywhere; }
+    .result-meta { font-size: 10px; color: var(--muted); }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 17px; }
+    .select { width: 100%; min-height: 45px; padding: 0 12px; color: var(--text); border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: #101522; outline: none; font-size: 12px; }
+    .options .field { min-width: 0; }
+    .options .label { margin-bottom: 7px; }
+    .file-drop { padding: 29px 18px; border: 1px dashed rgba(181,174,255,.34); border-radius: 15px; background: rgba(115,98,215,.045); text-align: center; transition: .2s; cursor: pointer; }
+    .file-drop.dragging { border-color: var(--accent-2); background: rgba(96,226,194,.08); }
+    .upload-icon { margin: 0 auto 12px; width: 45px; height: 45px; display: grid; place-items: center; border-radius: 14px; background: rgba(155,140,255,.13); color: #c6beff; }
+    .upload-icon svg { width: 22px; height: 22px; }
+    .file-drop strong { font-size: 13px; }
+    .file-drop p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .file-name { display: none; margin-top: 12px; font-size: 11px; color: var(--accent-2); overflow-wrap: anywhere; }
+    input[type=file] { display: none; }
+    .format-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 18px; }
+    .format-option { position: relative; }
+    .format-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .format-option span { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 67px; background: rgba(0,0,0,.17); border: 1px solid rgba(255,255,255,.09); border-radius: 10px; color: #9fa8c0; gap: 5px; cursor: pointer; transition: .18s; }
+    .format-option b { font-size: 12px; color: #dce0f0; }
+    .format-option small { font-size: 9px; }
+    .format-option input:checked + span { border-color: rgba(155,140,255,.63); background: rgba(155,140,255,.12); color: #dcd7ff; box-shadow: inset 0 0 0 1px rgba(155,140,255,.1); }
+    .message { display: none; margin-top: 16px; padding: 12px 13px; border-radius: 10px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+    .message.error { display: block; color: #ffb7c2; background: rgba(255,97,126,.09); border: 1px solid rgba(255,97,126,.19); }
+    .message.success { display: block; color: #9df1d6; background: rgba(96,226,194,.075); border: 1px solid rgba(96,226,194,.16); }
+    .progress { display: none; margin-top: 16px; }
+    .progress-label { display: flex; justify-content: space-between; color: #9ca6c0; font-size: 10px; margin-bottom: 8px; }
+    .progress-track { height: 5px; background: rgba(255,255,255,.08); overflow: hidden; border-radius: 10px; }
+    .progress-bar { width: 0%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .28s ease; }
+    #file-progress .progress-bar { width: 38%; animation: file-loading 1.15s ease-in-out infinite alternate; }
+    @keyframes file-loading { from { transform: translateX(-10%); } to { transform: translateX(145%); } }
+    .photo-tools { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.08); }
+    .photo-tools-heading { display: flex; gap: 8px; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 12px; }
+    .photo-tools-heading strong { font-size: 12px; }
+    .photo-tools-heading span, .photo-gallery-note { font-size: 10px; line-height: 1.5; color: var(--muted); }
+    .photo-gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+    .photo-item { min-width: 0; padding: 6px; border: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.14); border-radius: 10px; }
+    .photo-item img { width: 100%; aspect-ratio: 3/4; display: block; object-fit: cover; border-radius: 6px; background: #111827; }
+    .photo-item .photo-number { display: block; margin: 7px 0 6px; font-size: 10px; color: #c2c9dc; }
+    .photo-item button { width: 100%; min-height: 30px; padding: 5px 3px; font-size: 10px; border-radius: 7px; border: 1px solid rgba(155,140,255,.35); background: rgba(155,140,255,.09); color: #d7d0ff; cursor: pointer; }
+    .photo-item button:disabled { opacity: .45; cursor: wait; }
+    .photo-gallery-note { margin: 10px 0 0; }
+    @media (max-width: 480px) { .photo-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin: 25px auto 0; max-width: 760px; }
+    .feature { padding: 16px; border: 1px solid rgba(255,255,255,.07); border-radius: 14px; background: rgba(255,255,255,.025); }
+    .feature-icon { width: 31px; height: 31px; border-radius: 9px; background: rgba(96,226,194,.09); color: var(--accent-2); display: grid; place-items: center; margin-bottom: 11px; }
+    .feature-icon svg { width: 16px; height: 16px; }
+    .feature h3 { font-size: 12px; margin: 0 0 6px; }
+    .feature p { color: #8791aa; font-size: 10px; line-height: 1.7; margin: 0; }
+    .notice { margin: 23px auto 0; max-width: 760px; padding: 13px 15px; display: flex; gap: 10px; align-items: flex-start; border: 1px solid rgba(255,255,255,.065); border-radius: 11px; color: #858fa7; font-size: 10px; line-height: 1.75; }
+    .notice svg { flex: 0 0 auto; margin-top: 1px; color: #b6afd9; }
+    footer { padding: 28px 0 24px; text-align: center; color: #626d86; font-size: 10px; }
+    .hidden { display: none !important; }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 24px, 540px); }
+      header { height: 68px; }
+      .header-note { display: none; }
+      .hero { padding: 42px 0 26px; }
+      .hero p { font-size: 13px; }
+      .tab-pane { padding: 19px 16px; }
+      .pane-heading { margin-bottom: 16px; }
+      .url-input { padding-left: 12px; padding-right: 89px; font-size: 12px; }
+      .paste-btn { padding: 0 9px; }
+      .options { gap: 9px; }
+      .format-grid { grid-template-columns: repeat(3, 1fr); }
+      .features { grid-template-columns: 1fr; gap: 9px; }
+      .feature { display: flex; gap: 12px; align-items: flex-start; }
+      .feature-icon { flex: 0 0 auto; margin-bottom: 0; }
+      .feature h3 { margin-top: 1px; }
+      .thumb { width: 92px; height: 69px; }
+      .result-top { gap: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="shell">
+    <a class="brand" href="/" aria-label="KonversiKu beranda">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.7c0-.77.84-1.25 1.51-.85l9.02 5.3a1 1 0 0 1 0 1.72l-9.02 5.3A1 1 0 0 1 8 16.3V5.7Z" fill="currentColor"/></svg></span>
+      <span>KonversiKu</span><span class="beta">Beta</span>
+    </a>
+    <div class="header-note"><span class="status-dot"></span><span>Media converter online · v1.2.0</span>{% if auth_required %}<a href="/logout" style="margin-left:12px;text-decoration:none;color:#c6beff">Keluar</a>{% endif %}</div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.64 5.64l2.12 2.12m8.48 8.48 2.12 2.12m0-12.72-2.12 2.12m-8.48 8.48-2.12 2.12"/></svg> Satu tempat untuk media kamu</div>
+      <h1>Satu link.<br><span>Pilih hasilnya.</span></h1>
+      <p>Ambil video dari tautan publik atau ubah file milikmu ke format yang dibutuhkan. Praktis, tanpa akun publik KonversiKu.</p>
+      <div class="platform-row" aria-label="Platform yang bisa dicoba">
+        <span class="platform-pill"><i class="platform-icon"></i>TikTok</span>
+        <span class="platform-pill"><i class="platform-icon"></i>Instagram</span>
+        <span class="platform-pill"><i class="platform-icon"></i>Facebook</span>
+        <span class="platform-pill"><i class="platform-icon"></i>YouTube</span>
+        <span class="platform-pill"><i class="platform-icon"></i>Dan lainnya</span>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Media converter">
+      <div class="main-card">
+        <div class="tabs" role="tablist" aria-label="Pilih sumber media">
+          <button class="tab active" id="tab-link" type="button" role="tab" aria-selected="true" aria-controls="pane-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Dari link
+          </button>
+          <button class="tab" id="tab-file" type="button" role="tab" aria-selected="false" aria-controls="pane-file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M12 18v-6m-3 3 3-3 3 3"/></svg>
+            Dari file
+          </button>
+        </div>
+
+        <div class="tab-pane" id="pane-link" role="tabpanel" aria-labelledby="tab-link">
+          <div class="pane-heading">
+            <div><h2>Tempel tautan media</h2><p class="section-subtitle">Gunakan link publik yang bisa diakses tanpa login.</p></div>
+          </div>
+          <form id="link-form">
+            <label class="label" for="media-url">URL konten</label>
+            <div class="input-wrap">
+              <input class="url-input" id="media-url" name="url" type="url" required placeholder="https://www.tiktok.com/@.../video/..." autocomplete="url">
+              <button class="paste-btn" id="paste-btn" type="button">Tempel link</button>
+            </div>
+            <p class="hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>Link privat, live yang sedang berlangsung, atau konten yang dibatasi platform mungkin tidak bisa diproses.</p>
+            <button class="primary-btn" id="inspect-btn" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg> Periksa link</button>
+          </form>
+          <div class="result-card" id="result-card">
+            <div class="result-top">
+              <img class="thumb" id="result-thumb" alt="Thumbnail media" src="" onerror="this.style.display='none'">
+              <div class="result-details">
+                <span class="source-chip" id="result-platform">Media</span>
+                <div class="result-title" id="result-title">Judul media</div>
+                <div class="result-meta" id="result-meta">Pembuat · Durasi</div>
+              </div>
+            </div>
+            <div class="options">
+              <div class="field"><label class="label" for="link-format">Format hasil</label><select class="select" id="link-format"><option value="mp4">MP4 · Video</option><option value="mp3">MP3 · Suara dari video</option><option value="photo_video" hidden>MP4 · Video dari foto slide</option><option value="photo_zip" hidden>ZIP · Semua foto slide</option></select></div>
+              <div class="field" id="quality-field"><label class="label" for="link-quality">Kualitas video</label><select class="select" id="link-quality"><option value="best">Terbaik yang tersedia</option><option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option></select></div>
+            </div>
+            <p class="hint hidden" id="audio-format-hint">MP3 video diambil dari audio yang tersedia pada postingan.</p>
+            <button class="primary-btn" id="download-btn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m-5-5 5 5 5-5M5 17v3h14v-3"/></svg> Unduh hasil</button>
+          </div>
+          <section id="photo-tools" class="photo-tools hidden" aria-live="polite">
+            <div class="photo-tools-heading"><strong id="photo-count">Foto slide</strong><span>Tekan Unduh pada foto yang ingin disimpan satu per satu.</span></div>
+            <div class="photo-gallery" id="photo-gallery"></div>
+            <p class="hint" id="photo-gallery-note"></p>
+          </section>
+          <div class="progress" id="link-progress"><div class="progress-label"><span id="link-progress-text">Memproses media...</span><span id="link-progress-percent">0%</span></div><div class="progress-track"><div class="progress-bar" id="link-progress-bar" style="width:0%"></div></div></div>
+          <div class="message" id="link-message" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="tab-pane hidden" id="pane-file" role="tabpanel" aria-labelledby="tab-file">
+          <div class="pane-heading">
+            <div><h2>Konversi file dari perangkat</h2><p class="section-subtitle">File yang dipilih diunggah sementara ke layanan online untuk dikonversi. Hindari mengunggah file pribadi atau sensitif.</p></div>
+          </div>
+          <form id="file-form">
+            <label class="label">Pilih file sumber</label>
+            <label class="file-drop" id="file-drop" for="local-file">
+              <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m-4 4 4-4 4 4"/><path d="M20 16.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.5"/></svg></div>
+              <strong>Klik untuk pilih file atau tarik ke sini</strong>
+              <p>Video atau audio · Maksimal 100 MB</p>
+              <div class="file-name" id="file-name"></div>
+            </label>
+            <input id="local-file" name="file" type="file" accept="video/*,audio/*,.mkv,.avi,.mov,.flv,.m4v,.3gp,.ogg,.opus,.aac">
+            <div class="label" style="margin-top:19px">Pilih format keluaran</div>
+            <div class="format-grid" role="radiogroup" aria-label="Format file keluaran">
+              <label class="format-option"><input type="radio" name="file-format" value="mp4" checked><span><b>MP4</b><small>Video</small></span></label>
+              <label class="format-option"><input type="radio" name="file-format" value="mp3"><span><b>MP3</b><small>Audio</small></span></label>
+              <label class="format-option"><input type="radio" name="file-format" value="wav"><span><b>WAV</b><small>Audio lossless</small></span></label>
+              <label class="format-option"><input type="radio" name="file-format" value="m4a"><span><b>M4A</b><small>Audio</small></span></label>
+              <label class="format-option"><input type="radio" name="file-format" value="webm"><span><b>WEBM</b><small>Video</small></span></label>
+            </div>
+            <button class="primary-btn" id="convert-btn" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/><path d="m17 15 3 3-3 3"/></svg> Konversi & unduh</button>
+          </form>
+          <div class="progress" id="file-progress"><div class="progress-label"><span id="file-progress-text">Memproses file...</span><span id="file-progress-percent">--</span></div><div class="progress-track"><div class="progress-bar" id="file-progress-bar"></div></div></div>
+          <div class="message" id="file-message" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" aria-label="Fitur utama">
+      <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 17v3h14v-3"/></svg></div><div><h3>Format fleksibel</h3><p>Video MP4, audio MP3, WAV, M4A, dan WEBM untuk file yang diunggah.</p></div></article>
+      <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></div><div><h3>Proses online</h3><p>File diunggah sementara ke layanan hosting untuk diproses; jangan unggah konten sensitif.</p></div></article>
+      <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div><h3>Ringkas & mudah</h3><p>Antarmuka sederhana, langsung dari browser komputer kamu.</p></div></article>
+    </section>
+
+    <div class="notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span><strong>Gunakan dengan bijak.</strong> Unduh atau konversi hanya konten yang kamu miliki atau telah mendapat izin. File yang diunggah untuk konversi diproses di hosting online. Tautan privat, konten berbayar/DRM, dan format tertentu mungkin tidak didukung. KonversiKu adalah proyek independen, bukan bagian dari TikTok, Instagram, Facebook, atau YouTube.</span></div>
+  </main>
+  <footer class="shell">{{ app_name }} <span aria-hidden="true">·</span> v1.2.0 <span aria-hidden="true">·</span> Untuk penggunaan pribadi</footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let currentUrl = '';
+    let currentInfo = null;
+
+    function setMessage(id, text, kind) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = `message ${kind}`;
+      el.style.display = 'block';
+    }
+    function clearMessage(id) {
+      const el = $(id);
+      el.textContent = '';
+      el.className = 'message';
+      el.style.display = 'none';
+    }
+    function readableFetchError(err, fallback) {
+      const message = (err && err.message) ? err.message : '';
+      if (/failed to fetch|networkerror|fetch failed|load failed/i.test(message)) {
+        return 'Layanan KonversiKu online sedang tidak bisa dihubungi. Muat ulang halaman beberapa saat lagi. Kalau terus gagal, layanan hosting mungkin sedang tidur atau mengalami gangguan.';
+      }
+      return message || fallback;
+    }
+    function setBusy(buttonId, progressId, busy, label) {
+      $(buttonId).disabled = busy;
+      $(progressId).style.display = busy ? 'block' : 'none';
+      if (busy) {
+        const textEl = $(progressId === 'link-progress' ? 'link-progress-text' : 'file-progress-text');
+        if (textEl) textEl.textContent = label || (progressId === 'file-progress' ? 'Mengunggah file dan mengonversi...' : 'Memproses media...');
+      }
+      if (busy && progressId === 'link-progress') {
+        $('link-progress-percent').textContent = '0%';
+        $('link-progress-bar').style.width = '0%';
+      }
+      if (busy && progressId === 'file-progress') {
+        $('file-progress-percent').textContent = '--';
+        $('file-progress-bar').style.animation = '';
+        $('file-progress-bar').style.width = '38%';
+      }
+    }
+    function tabSwitch(which) {
+      const link = which === 'link';
+      $('tab-link').classList.toggle('active', link);
+      $('tab-file').classList.toggle('active', !link);
+      $('tab-link').setAttribute('aria-selected', String(link));
+      $('tab-file').setAttribute('aria-selected', String(!link));
+      $('pane-link').classList.toggle('hidden', !link);
+      $('pane-file').classList.toggle('hidden', link);
+    }
+    $('tab-link').addEventListener('click', () => tabSwitch('link'));
+    $('tab-file').addEventListener('click', () => tabSwitch('file'));
+
+    $('paste-btn').addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!text) throw new Error('Clipboard kosong. Salin link terlebih dahulu.');
+        $('media-url').value = text.trim();
+        $('media-url').focus();
+        clearMessage('link-message');
+      } catch (e) {
+        setMessage('link-message', e.message || 'Browser tidak mengizinkan akses clipboard. Tempel link dengan Ctrl+V.', 'error');
+      }
+    });
+
+    function updateLinkFormatHint() {
+      const isPhotoSlideshow = currentInfo && currentInfo.post_type === 'tiktok_photo_slideshow';
+      const formatSelect = $('link-format');
+      const normalMp4 = formatSelect.querySelector('option[value="mp4"]');
+      const mp3 = formatSelect.querySelector('option[value="mp3"]');
+      const photoVideo = formatSelect.querySelector('option[value="photo_video"]');
+      const photoZip = formatSelect.querySelector('option[value="photo_zip"]');
+      normalMp4.hidden = Boolean(isPhotoSlideshow); normalMp4.disabled = Boolean(isPhotoSlideshow);
+      photoVideo.hidden = !isPhotoSlideshow; photoVideo.disabled = !isPhotoSlideshow;
+      photoZip.hidden = !isPhotoSlideshow; photoZip.disabled = !isPhotoSlideshow;
+      mp3.textContent = isPhotoSlideshow ? 'MP3 · Lagu dari foto slide' : 'MP3 · Suara dari video';
+      if (isPhotoSlideshow && !['mp3', 'photo_video', 'photo_zip'].includes(formatSelect.value)) formatSelect.value = 'photo_video';
+      if (!isPhotoSlideshow && ['photo_video', 'photo_zip'].includes(formatSelect.value)) formatSelect.value = 'mp4';
+      const selectedFormat = formatSelect.value;
+      $('quality-field').classList.toggle('hidden', selectedFormat !== 'mp4' || isPhotoSlideshow);
+      $('audio-format-hint').classList.toggle('hidden', selectedFormat !== 'mp3');
+      if (isPhotoSlideshow && selectedFormat === 'mp3') {
+        $('audio-format-hint').textContent = 'Mengambil lagu/audio yang menyertai postingan. Ini bukan pemisah vokal dari musik.';
+      } else if (selectedFormat === 'mp3') {
+        $('audio-format-hint').textContent = 'Mengambil audio dari video yang tersedia pada postingan.';
+      }
+      const downloadButton = $('download-btn');
+      const labels = {
+        mp4: 'Unduh video', mp3: isPhotoSlideshow ? 'Unduh lagu (MP3)' : 'Unduh audio (MP3)',
+        photo_video: 'Buat video MP4', photo_zip: 'Unduh semua foto (ZIP)'
+      };
+      const svg = downloadButton.querySelector('svg');
+      const label = labels[selectedFormat] || 'Unduh hasil';
+      downloadButton.replaceChildren();
+      if (svg) downloadButton.append(svg);
+      downloadButton.append(document.createTextNode(` ${label}`));
+    }
+    function buildPhotoGallery(info) {
+      const tools = $('photo-tools');
+      const gallery = $('photo-gallery');
+      gallery.replaceChildren();
+      if (!info || info.post_type !== 'tiktok_photo_slideshow') {
+        tools.classList.add('hidden');
+        return;
+      }
+      tools.classList.remove('hidden');
+      const images = Array.isArray(info.images) ? info.images : [];
+      $('photo-count').textContent = images.length ? `${images.length} foto ditemukan` : 'Foto slide terdeteksi';
+      $('photo-gallery-note').textContent = images.length
+        ? 'Untuk menghemat data, setiap foto diunduh saat tombolnya ditekan. MP4 akan menampilkan foto berurutan dan mencoba menyertakan lagu.'
+        : 'Daftar foto tidak berhasil dibaca oleh layanan ini. Coba postingan publik lain atau pastikan TikTok tidak meminta login.';
+      images.forEach((imageUrl, index) => {
+        const item = document.createElement('div'); item.className = 'photo-item';
+        const img = document.createElement('img'); img.loading = 'lazy'; img.alt = `Foto slide ${index + 1}`; img.src = imageUrl;
+        const number = document.createElement('span'); number.className = 'photo-number'; number.textContent = `Foto ${index + 1}`;
+        const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Unduh foto';
+        button.addEventListener('click', async () => {
+          try {
+            clearMessage('link-message');
+            await startAndPollDownload({url: currentUrl, action: 'photo_image', image_index: index}, button, `Mengunduh foto ${index + 1}...`);
+            setMessage('link-message', `Foto ${index + 1} berhasil dikirim ke folder unduhan browser.`, 'success');
+          } catch (err) {
+            setMessage('link-message', readableFetchError(err, 'Foto gagal diunduh.'), 'error');
+          }
+        });
+        item.append(img, number, button); gallery.append(item);
+      });
+    }
+    $('link-format').addEventListener('change', updateLinkFormatHint);
+    updateLinkFormatHint();
+    $('media-url').addEventListener('input', () => {
+      currentUrl = '';
+      currentInfo = null;
+      $('result-card').style.display = 'none';
+      $('photo-tools').classList.add('hidden');
+      updateLinkFormatHint();
+    });
+
+    $('link-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessage('link-message');
+      $('result-card').style.display = 'none';
+      currentUrl = $('media-url').value.trim();
+      if (!currentUrl) return;
+      setBusy('inspect-btn', 'link-progress', true, 'Memeriksa tautan...');
+      try {
+        const response = await fetch('/api/info', {
+          method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: currentUrl})
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.error || 'Tidak bisa memeriksa tautan.');
+        currentInfo = data;
+        updateLinkFormatHint();
+        const isPhotoSlideshow = data.post_type === 'tiktok_photo_slideshow';
+        buildPhotoGallery(data);
+        $('result-platform').textContent = isPhotoSlideshow ? 'TikTok · Foto slide' : data.platform;
+        $('result-title').textContent = data.title;
+        $('result-meta').textContent = isPhotoSlideshow
+          ? `${data.uploader} · Postingan foto slide`
+          : `${data.uploader} · ${data.duration}`;
+        const thumb = $('result-thumb');
+        thumb.style.display = data.thumbnail ? 'block' : 'none';
+        thumb.src = data.thumbnail || '';
+        $('result-card').style.display = 'block';
+        $('result-card').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        setMessage('link-message', isPhotoSlideshow
+          ? `Foto slide TikTok terdeteksi${data.image_count ? `: ${data.image_count} foto.` : '.'} Pilih MP4 untuk membuat video, ZIP untuk semua foto, MP3 untuk lagu, atau unduh foto satu per satu.`
+          : 'Link terbaca. Pilih format dan kualitas, lalu tekan Unduh hasil.', 'success');
+      } catch (err) {
+        setMessage('link-message', readableFetchError(err, 'Ada kesalahan saat memeriksa link.'), 'error');
+      } finally {
+        setBusy('inspect-btn', 'link-progress', false);
+      }
+    });
+
+    async function downloadBlob(response, progressId = null) {
+      if (!response.ok) {
+        let message = 'Proses gagal.';
+        try { const data = await response.json(); message = data.error || message; } catch (_) {}
+        throw new Error(message);
+      }
+      let blob;
+      const lengthHeader = Number(response.headers.get('Content-Length'));
+      if (progressId && response.body && response.body.getReader) {
+        const reader = response.body.getReader();
+        const chunks = [];
+        let total = 0;
+        let read;
+        const textId = progressId === 'link-progress' ? 'link-progress-text' : 'file-progress-text';
+        const pctId = progressId === 'link-progress' ? 'link-progress-percent' : 'file-progress-percent';
+        const barId = progressId === 'link-progress' ? 'link-progress-bar' : 'file-progress-bar';
+        $(barId).style.animation = 'none';
+        while (!(read = await reader.read()).done) {
+          chunks.push(read.value);
+          total += read.value.byteLength;
+          const megabytes = (total / (1024 * 1024)).toFixed(1);
+          if (lengthHeader > 0) {
+            const percent = Math.min(100, Math.round(total / lengthHeader * 100));
+            $(pctId).textContent = `${percent}%`;
+            $(barId).style.width = `${percent}%`;
+            $(textId).textContent = `Mengirim hasil ke perangkat · ${megabytes} MB`;
+          } else {
+            $(pctId).textContent = `${megabytes} MB`;
+            $(textId).textContent = `Mengirim hasil ke perangkat · ${megabytes} MB`;
+          }
+        }
+        const type = response.headers.get('Content-Type') || 'application/octet-stream';
+        blob = new Blob(chunks, {type});
+        $(pctId).textContent = '100%';
+        $(barId).style.width = '100%';
+        $(textId).textContent = 'File terkirim ke perangkat.';
+      } else {
+        blob = await response.blob();
+      }
+      const disposition = response.headers.get('Content-Disposition') || '';
+      let filename = 'konversiku-hasil';
+      const match = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+      if (match) filename = decodeURIComponent(match[1] || match[2]);
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 30000);
+    }
+
+    async function startAndPollDownload(payload, button = $('download-btn'), initialText = 'Menyiapkan unduhan...') {
+      const allPhotoButtons = Array.from(document.querySelectorAll('.photo-item button'));
+      const buttonId = button.id;
+      button.disabled = true;
+      allPhotoButtons.forEach(item => item.disabled = true);
+      $('link-progress').style.display = 'block';
+      $('link-progress-text').textContent = initialText;
+      $('link-progress-percent').textContent = '0%';
+      $('link-progress-bar').style.width = '0%';
+      try {
+        const startResponse = await fetch('/api/download', {
+          method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+        });
+        const started = await startResponse.json();
+        if (!startResponse.ok || !started.ok || !started.job_id) throw new Error(started.error || 'Tidak bisa memulai unduhan.');
+        let status;
+        while (true) {
+          const response = await fetch(`/api/download/jobs/${encodeURIComponent(started.job_id)}`);
+          status = await response.json();
+          if (!response.ok || !status.ok) throw new Error(status.error || 'Status unduhan tidak tersedia.');
+          const percent = Math.max(0, Math.min(100, Number(status.percent) || 0));
+          $('link-progress-percent').textContent = `${Math.round(percent)}%`;
+          $('link-progress-bar').style.width = `${percent}%`;
+          $('link-progress-text').textContent = status.text || 'Memproses media...';
+          if (status.status === 'error') throw new Error(status.error || 'Pengunduhan gagal.');
+          if (status.status === 'complete') break;
+          await new Promise(resolve => setTimeout(resolve, 450));
+        }
+        $('link-progress-text').textContent = 'Mengirim file ke browser...';
+        const fileResponse = await fetch(`/api/download/jobs/${encodeURIComponent(started.job_id)}/file`);
+        await downloadBlob(fileResponse, 'link-progress');
+        $('link-progress-percent').textContent = '100%';
+        $('link-progress-bar').style.width = '100%';
+        return status.note || '';
+      } finally {
+        button.disabled = false;
+        allPhotoButtons.forEach(item => item.disabled = false);
+        if (buttonId === 'download-btn') updateLinkFormatHint();
+      }
+    }
+
+    $('download-btn').addEventListener('click', async () => {
+      if (!currentUrl || !currentInfo) return;
+      clearMessage('link-message');
+      const format = $('link-format').value;
+      const payload = {
+        url: currentUrl,
+        format: ['photo_video', 'photo_zip'].includes(format) ? 'mp4' : format,
+        quality: $('link-quality').value,
+        action: format === 'photo_video' ? 'photo_video' : format === 'photo_zip' ? 'photo_zip' : 'media'
+      };
+      try {
+        const note = await startAndPollDownload(payload);
+        const baseText = format === 'photo_video' ? 'Video MP4 berhasil dibuat.'
+          : format === 'photo_zip' ? 'Semua foto berhasil dimasukkan ke ZIP.'
+          : format === 'mp3' ? 'File MP3 berhasil dibuat.' : 'Video berhasil diunduh.';
+        setMessage('link-message', note ? `${baseText} ${note}` : `${baseText} File sudah dikirim ke folder unduhan browser.`, 'success');
+      } catch (err) {
+        setMessage('link-message', readableFetchError(err, 'Pengunduhan gagal.'), 'error');
+      }
+    });
+
+    const fileInput = $('local-file');
+    const drop = $('file-drop');
+    function showChosenFile(file) {
+      $('file-name').style.display = file ? 'block' : 'none';
+      $('file-name').textContent = file ? `${file.name} · ${(file.size / (1024 * 1024)).toFixed(1)} MB` : '';
+      clearMessage('file-message');
+    }
+    fileInput.addEventListener('change', () => showChosenFile(fileInput.files[0]));
+    ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('dragging'); }));
+    ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('dragging'); }));
+    drop.addEventListener('drop', e => {
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) { fileInput.files = e.dataTransfer.files; showChosenFile(file); }
+    });
+
+    $('file-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessage('file-message');
+      const file = fileInput.files[0];
+      if (!file) { setMessage('file-message', 'Pilih file terlebih dahulu.', 'error'); return; }
+      if (file.size > 100 * 1024 * 1024) { setMessage('file-message', 'Ukuran file melewati batas 100 MB untuk layanan online. Pilih file lebih kecil.', 'error'); return; }
+      const format = document.querySelector('input[name="file-format"]:checked').value;
+      const formData = new FormData(); formData.append('file', file); formData.append('format', format);
+      setBusy('convert-btn', 'file-progress', true);
+      try {
+        const response = await fetch('/api/convert-file', {method: 'POST', body: formData});
+        await downloadBlob(response, 'file-progress');
+        setMessage('file-message', `Berhasil dikonversi ke ${format.toUpperCase()}. File dikirim ke folder unduhan browser.`, 'success');
+      } catch (err) {
+        setMessage('file-message', readableFetchError(err, 'Konversi gagal.'), 'error');
+      } finally {
+        setBusy('convert-btn', 'file-progress', false);
+      }
+    });
+
+    // Small server-status check; no source files or URLs are sent by this check.
+    fetch('/api/health').then(r => {
+      if (!r.ok) throw new Error('health check failed');
+      return r.json();
+    }).then(data => {
+      if (!data.ffmpeg) setMessage('file-message', 'Mesin konversi sedang belum siap. Muat ulang halaman beberapa saat lagi.', 'error');
+    }).catch(() => {
+      setMessage('file-message', 'Layanan online tidak bisa dihubungi. Coba muat ulang halaman beberapa saat lagi.', 'error');
+    });
+  </script>
+</body>
+</html>
