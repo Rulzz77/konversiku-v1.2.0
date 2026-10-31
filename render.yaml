@@ -3,8 +3,8 @@ services:
     name: konversiku
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 1800 app:app
+    buildCommand: pip install -r requirements.txt && curl -fsSL https://deno.land/install.sh | DENO_INSTALL="$PWD/.deno" sh
+    startCommand: export PATH="$PWD/.deno/bin:$PATH" && gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 1800 app:app
     healthCheckPath: /api/health
     envVars:
       - key: PYTHON_VERSION

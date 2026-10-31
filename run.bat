@@ -2,7 +2,7 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 echo =====================================
-echo          KonversiKu - Web App v1.2.0
+echo          KonversiKu - Web App v1.2.1
 echo =====================================
 echo.
 where py >nul 2>nul

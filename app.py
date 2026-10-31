@@ -11,6 +11,7 @@ import hmac
 import secrets
 import time
 import json
+import logging
 import zipfile
 from pathlib import Path
 from urllib.parse import urlparse, urljoin
@@ -22,6 +23,8 @@ from werkzeug.utils import secure_filename
 import requests
 
 APP_NAME = "KonversiKu"
+APP_VERSION = "1.2.1"
+logger = logging.getLogger("konversiku")
 BASE_DIR = Path(__file__).resolve().parent
 MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_BYTES", str(100 * 1024 * 1024)))  # 100 MB on hosted deployment by default
 
@@ -116,6 +119,16 @@ MAX_TIKTOK_PHOTO_TOTAL_BYTES = 80 * 1024 * 1024
 def ffmpeg_path() -> str:
     """Use the FFmpeg executable supplied by imageio-ffmpeg."""
     return imageio_ffmpeg.get_ffmpeg_exe()
+
+
+def exception_detail(exc: BaseException, limit: int = 500) -> str:
+    """Return a useful, bounded message even when an exception has no text."""
+    message = str(exc).strip()
+    if not message:
+        message = f"{type(exc).__name__}: proses berhenti tanpa memberikan detail error."
+    else:
+        message = message.splitlines()[-1].strip()
+    return message[:limit] or f"{type(exc).__name__}: proses gagal tanpa detail."
 
 
 def validated_media_url(raw_url: str) -> tuple[str, str]:
@@ -684,7 +697,18 @@ def health():
     except Exception:
         bin_path = ""
         ffmpeg_ok = False
-    return jsonify({"ok": True, "ffmpeg": ffmpeg_ok, "version": "1.2.0"})
+    deno_path = shutil.which("deno")
+    try:
+        ytdlp_version = getattr(getattr(yt_dlp, "version", None), "__version__", "unknown")
+    except Exception:
+        ytdlp_version = "unknown"
+    return jsonify({
+        "ok": True,
+        "ffmpeg": ffmpeg_ok,
+        "deno": bool(deno_path),
+        "yt_dlp": ytdlp_version,
+        "version": APP_VERSION,
+    })
 
 
 @app.post("/api/info")
@@ -737,7 +761,7 @@ def get_info():
         return jsonify({"ok": False, "error": str(exc)}), 400
     except Exception as exc:
         message = str(exc).strip().splitlines()
-        detail = message[-1][:350] if message else "Gagal membaca tautan."
+        detail = message[-1][:350] if message else f"{type(exc).__name__}: gagal membaca tautan tanpa detail tambahan."
         if is_tiktok_photo_url((data or {}).get("url", "")):
             friendly = "TikTok foto slide terdeteksi, tetapi detail postingan tidak dapat dibaca. Pastikan postingan publik dan tidak dibatasi login. "
         else:
@@ -779,10 +803,11 @@ def _download_job_worker(job_id: str, data: dict):
                     result_path=str(result_path), temp_dir=str(temp_dir), mimetype=mimetype,
                     filename=result_path.name)
     except Exception as exc:
-        raw = str(exc).strip()
-        if not raw:
-            raw = "Proses gagal."
-        _update_job(job_id, status="error", text="Pengunduhan gagal.", error=raw.splitlines()[-1][:500], stage="error")
+        # Keep the full traceback in hosting logs; the browser receives a safe,
+        # concise message that still identifies otherwise-empty exceptions.
+        logger.exception("Pekerjaan unduh KonversiKu gagal (job_id=%s)", job_id)
+        raw = exception_detail(exc, 500)
+        _update_job(job_id, status="error", text="Pengunduhan gagal.", error=raw, stage="error")
 
 
 @app.get("/api/download/jobs/<job_id>")
@@ -937,8 +962,7 @@ def _process_download(data: dict, job_id: str):
         raise
     except Exception as exc:
         shutil.rmtree(temp_dir, ignore_errors=True)
-        message = str(exc).strip().splitlines()
-        detail = message[-1][:500] if message else "Proses gagal."
+        detail = exception_detail(exc, 500)
         if output_format == "mp3" and photo_slideshow:
             detail = "Lagu foto-slide tidak dapat diambil dari tautan ini atau akses TikTok dibatasi. " + detail
         raise RuntimeError("Gagal mengunduh atau mengonversi konten. " + detail) from exc
@@ -988,8 +1012,8 @@ def convert_file():
         return send_temp_file(output_path, temp_dir, mime_map[output_format])
     except Exception as exc:
         shutil.rmtree(temp_dir, ignore_errors=True)
-        message = str(exc).strip().splitlines()
-        detail = message[-1][:350] if message else "Konversi gagal."
+        logger.exception("Konversi file KonversiKu gagal")
+        detail = exception_detail(exc, 350)
         return jsonify({"ok": False, "error": "File gagal dikonversi. Pastikan file valid dan format keluaran cocok. " + detail}), 400
 
 
@@ -1024,7 +1048,7 @@ def get_lan_ipv4_addresses() -> list[str]:
 
 
 if __name__ == "__main__":
-    print("\nKonversiKu v1.2.0 berjalan di:")
+    print(f"\nKonversiKu v{APP_VERSION} berjalan di:")
     print("  Laptop ini : http://127.0.0.1:5000")
     addresses = get_lan_ipv4_addresses()
     if addresses:

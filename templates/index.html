@@ -161,7 +161,7 @@
       <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5.7c0-.77.84-1.25 1.51-.85l9.02 5.3a1 1 0 0 1 0 1.72l-9.02 5.3A1 1 0 0 1 8 16.3V5.7Z" fill="currentColor"/></svg></span>
       <span>KonversiKu</span><span class="beta">Beta</span>
     </a>
-    <div class="header-note"><span class="status-dot"></span><span>Media converter online · v1.2.0</span>{% if auth_required %}<a href="/logout" style="margin-left:12px;text-decoration:none;color:#c6beff">Keluar</a>{% endif %}</div>
+    <div class="header-note"><span class="status-dot"></span><span>Media converter online · v1.2.1</span>{% if auth_required %}<a href="/logout" style="margin-left:12px;text-decoration:none;color:#c6beff">Keluar</a>{% endif %}</div>
   </header>
 
   <main class="shell">
@@ -266,7 +266,7 @@
 
     <div class="notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg><span><strong>Gunakan dengan bijak.</strong> Unduh atau konversi hanya konten yang kamu miliki atau telah mendapat izin. File yang diunggah untuk konversi diproses di hosting online. Tautan privat, konten berbayar/DRM, dan format tertentu mungkin tidak didukung. KonversiKu adalah proyek independen, bukan bagian dari TikTok, Instagram, Facebook, atau YouTube.</span></div>
   </main>
-  <footer class="shell">{{ app_name }} <span aria-hidden="true">·</span> v1.2.0 <span aria-hidden="true">·</span> Untuk penggunaan pribadi</footer>
+  <footer class="shell">{{ app_name }} <span aria-hidden="true">·</span> v1.2.1 <span aria-hidden="true">·</span> Untuk penggunaan pribadi</footer>
 
   <script>
     const $ = (id) => document.getElementById(id);
@@ -594,7 +594,11 @@
       if (!r.ok) throw new Error('health check failed');
       return r.json();
     }).then(data => {
-      if (!data.ffmpeg) setMessage('file-message', 'Mesin konversi sedang belum siap. Muat ulang halaman beberapa saat lagi.', 'error');
+      if (!data.ffmpeg) {
+        setMessage('file-message', 'Mesin FFmpeg belum siap pada server. Periksa status deploy hosting.', 'error');
+      } else if (!data.deno) {
+        setMessage('link-message', 'Runtime Deno belum terdeteksi. Unduhan YouTube mungkin gagal; deploy ulang versi terbaru agar runtime ini dipasang.', 'error');
+      }
     }).catch(() => {
       setMessage('file-message', 'Layanan online tidak bisa dihubungi. Coba muat ulang halaman beberapa saat lagi.', 'error');
     });
